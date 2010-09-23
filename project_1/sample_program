@@ -1,0 +1,16 @@
+program sample (a, b, c, d);
+   var x, y, z : real;
+       i, j, k : integer;
+       function gcd(m, n : integer) : result integer;
+          var u, v, z : integer;
+              p, q, r : real;
+              begin
+                 m := i + j - k * m;
+                 x := p / q;
+               end
+       begin
+          x := y + 1;
+          if x + 2 * y >= 0.5 then alpha := beta + gamma / 2.5
+          else delta := x + y * (z - 4);
+          y := x - y
+       end. 
