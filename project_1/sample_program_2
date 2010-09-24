@@ -1,0 +1,25 @@
+program example(input, output);
+var a, b :integer; x, y, z: real;
+function root(n : integer; a : real) : result real;
+	var m : integer;
+	begin m := gcd(2*(n-1), b);
+	      root := a/m
+	end
+function gcd(m, n : integer): result integer;
+	var i : integer;
+	begin i := m - n;
+	      if i > 0 then gcd := gdc(n, i)
+	      else gcd := gcd(n, i+n)
+	end
+begin
+   read (a, b);
+   x := 0.007e-2 + 12.8*.03-54E2;
+   z := y + 1;
+   if x + 2 * y >= 0.5 then alpha := beta + gamma/2.5
+   else if a > b then u := root(n, a*b/2)
+   else delta := x + y * (z - 4);
+   y := x - y;
+   y := root(a+1,2*b*x, 23+45*s+p/g, (a+b)*16-c/d);
+   z := a+b-c*(e+f-g*(h+i-j*k/(l-m)+n)-p)+q;
+   write(x,y,z,u)
+end.
