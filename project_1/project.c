@@ -179,28 +179,36 @@ void add_token(char *t)
   }
 }
 
+void add_token_with_id(int id, char *t) 
+{
+  printf("%s", t);
+  pointer locus = look_up(t);
+  if (locus == NULL) 
+  {
+    locus = make_entry(id, t);
+  }
+  
+  element *new_token = (element *) malloc(sizeof(element));
+
+  new_token->code = id;
+  new_token->alias.reference = locus->lexeme;
+    
+  last_token->link = new_token;
+  last_token = last_token->link;
+}
+
 pointer handle_ident(char *ident)
 {
     pointer locus = look_up(ident);
     if (locus == NULL) {
 	    locus = make_entry(++key_code_count, ident);
-	    
- 
-
-     //for(i=1;i<=10;i++) {
-    //    curr = (item *)malloc(sizeof(item));
-    //    curr->val = ident;
-    //    curr->next  = head;
-    //    head = curr;
-     //}
-  }
+	  }
   
-  add_token(ident);
+    add_token_with_id(IDENTIFIER, ident);
 }
 
 void handle_int(char *text)
 {
-  
   add_token(text);
 }
 
@@ -230,8 +238,9 @@ void handle_relop(char *text)
 
 void handle_assignment(char *text)
 {
-  printf("--%s--", text);
- 
+  printf("%s", text);
+  
+  add_token(text);
 }
 
 %}
@@ -246,15 +255,16 @@ poz	      [1-9]
 int	      {poz}{digit}*
 exp	      [Ee][-+]?{int}
 other	    .
-assignment {ident}{ws}:={other}*;
 %%
 
 {ws}		  ECHO;
 {nl}		  printf("\n Line %2d:  ", ++line_count);
-{ident}		handle_ident(yytext);
-:=		        handle_other(yytext);
-{relop}		    handle_relop(yytext);
-{other}       handle_other(yytext);
+{ident}		add_token_with_id(IDENTIFIER, yytext);
+{int}     add_token_with_id(INTEGER, yytext);
+:=		    add_token_with_id(ASSIGN, yytext);
+{relop}	  add_token_with_id(RELOP, yytext);
+{exp}     add_token_with_id(REAL, yytext);
+{other}   handle_other(yytext);
 
 %%
 
