@@ -154,8 +154,7 @@ void add_token_with_id(int id, char *t)
 {
   printf("%s", t);
   pointer locus = look_up(t);
-  if (locus == NULL) 
-  {
+  if (locus == NULL)  {
     locus = make_entry(id, t);
   }
   
@@ -168,22 +167,16 @@ void add_token_with_id(int id, char *t)
   last_token = last_token->link;
 }
 
-
-int key_code_count = 282;
 void handle_other(char *text)
 {
   pointer locus = look_up(text);
   int id = 0;
   if (locus == NULL) 
   {
-   
     if(strlen(text) == 1)
       id = (int) text[0];
-    else 
-      id = ++key_code_count;
       
     locus = make_entry(id, text);
-    
 	}  else
     id = locus->lex_value;
     
