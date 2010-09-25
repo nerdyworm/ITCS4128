@@ -150,35 +150,6 @@ void preload()
   read_keys();
 }
 
-
-
-struct list_el {
-   char val[MAX_LENGTH];
-   struct list_el *next;
-};
-
-typedef struct list_el item;
-
-int key_code_count = 286;
-
-item *curr, *head, *first, *last;
-
-void add_token(char *t) 
-{
-  printf("%s", t);
-  pointer locus = look_up(t);
-  if (locus != NULL) 
-	{
-    element *new_token = (element *) malloc(sizeof(element));
-
-    new_token->code = locus->lex_value;
-    new_token->alias.reference = locus->lexeme;
-    
-    last_token->link = new_token;
-    last_token = last_token->link;
-  }
-}
-
 void add_token_with_id(int id, char *t) 
 {
   printf("%s", t);
@@ -197,50 +168,26 @@ void add_token_with_id(int id, char *t)
   last_token = last_token->link;
 }
 
-pointer handle_ident(char *ident)
-{
-    pointer locus = look_up(ident);
-    if (locus == NULL) {
-	    locus = make_entry(++key_code_count, ident);
-	  }
-  
-    add_token_with_id(IDENTIFIER, ident);
-}
 
-void handle_int(char *text)
-{
-  add_token(text);
-}
-
+int key_code_count = 282;
 void handle_other(char *text)
 {
   pointer locus = look_up(text);
-  if (locus == NULL) {
-    if(strlen(text) == 1) {
-      int ascii = (int) text[0];
-      locus = make_entry(ascii, text);
-    } else {
-      locus = make_entry(++key_code_count, text);
-    }
+  int id = 0;
+  if (locus == NULL) 
+  {
+   
+    if(strlen(text) == 1)
+      id = (int) text[0];
+    else 
+      id = ++key_code_count;
+      
+    locus = make_entry(id, text);
     
-	}   
-	add_token(text);
-}
-
-void handle_relop(char *text)
-{
-  pointer locus = look_up(text);
-  if (locus == NULL) {
-    locus = make_entry(++key_code_count, text);
-	}   
-	add_token(text);
-}
-
-void handle_assignment(char *text)
-{
-  printf("%s", text);
-  
-  add_token(text);
+	}  else
+    id = locus->lex_value;
+    
+	add_token_with_id(id, text);
 }
 
 %}
@@ -253,17 +200,19 @@ ws	      [ \t]+
 nl	      [\n]
 poz	      [1-9]
 int	      {poz}{digit}*
-exp	      [Ee][-+]?{int}
+exp	      (0\.)?[0-9]*[Ee][-+]?{int}
+float     ([0-9]*)?\.[0-9]+
 other	    .
 %%
 
 {ws}		  ECHO;
 {nl}		  printf("\n Line %2d:  ", ++line_count);
 {ident}		add_token_with_id(IDENTIFIER, yytext);
+{exp}     add_token_with_id(REAL, yytext);
+{float}   add_token_with_id(REAL, yytext);
 {int}     add_token_with_id(INTEGER, yytext);
 :=		    add_token_with_id(ASSIGN, yytext);
 {relop}	  add_token_with_id(RELOP, yytext);
-{exp}     add_token_with_id(REAL, yytext);
 {other}   handle_other(yytext);
 
 %%
