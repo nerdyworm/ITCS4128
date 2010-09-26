@@ -152,7 +152,7 @@ void preload()
 
 void add_token_with_id(int id, char *t) 
 {
-  printf("%s", t);
+  printf("-%s-", t);
   pointer locus = look_up(t);
   if (locus == NULL)  {
     locus = make_entry(id, t);
@@ -160,7 +160,7 @@ void add_token_with_id(int id, char *t)
   
   element *new_token = (element *) malloc(sizeof(element));
 
-  new_token->code = id;
+  new_token->code = locus->lex_value;
   new_token->alias.reference = locus->lexeme;
     
   last_token->link = new_token;
