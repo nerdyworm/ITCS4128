@@ -198,13 +198,13 @@ float     ([0-9]*)?\.[0-9]+
 other	    .
 %%
 
-{ws}		  ECHO;
-{nl}		  printf("\n Line %2d:  ", ++line_count);
-{ident}		add_token_with_id(IDENTIFIER, yytext);
+{ws}	  ECHO;
+{nl}	  printf("\n Line %2d:  ", ++line_count);
+{ident}	  add_token_with_id(IDENTIFIER, yytext);
 {exp}     add_token_with_id(REAL, yytext);
 {float}   add_token_with_id(REAL, yytext);
 {int}     add_token_with_id(INTEGER, yytext);
-:=		    add_token_with_id(ASSIGN, yytext);
+:=		  add_token_with_id(ASSIGN, yytext);
 {relop}	  add_token_with_id(RELOP, yytext);
 {other}   handle_other(yytext);
 
