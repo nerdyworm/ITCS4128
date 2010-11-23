@@ -9,6 +9,8 @@
 #define YYTOKENTYPE
 #define YYSTYPE pointer
 
+#define YYERROR_VERBOSE 1
+
 int Q_count;
 int T_count;
 char conv[10];
@@ -89,28 +91,33 @@ pointer get_temp()
 %token endmarker 278
 
 %%
-
-program : opening var_lst '.'	{ print_next_token(); printf("\t\t QV.");
+// P -> QVZB. | QVB.
+program : opening var_lst fun_lst block '.' { print_next_token(); printf("\t\t QVZB."); return 0;}
+  | opening var_lst block '.'	{ print_next_token(); printf("\t\t QV.");
 				  printf("\n\n SUCCESSFUL PARSING \n\n");
 				  return 0; }
-	;
 
+	;
+// Q -> program id(L);
 opening	: PROGRAM IDENTIFIER '(' id_list ')' ';'
 	;
 
+// I -> input | output | id
 io_id	: INPUT	{ print_next_token(); printf("\t\t input"); }
 	| OUTPUT	{ print_next_token(); printf("\t\t output"); }
 	| IDENTIFIER	{ print_next_token(); printf("\t\t %s", $1 -> lexeme); }
 	;
-
+// L -> I | I, L
 id_list	: io_id	{ print_next_token(); printf("\t\t I"); }
 	| io_id ',' id_list	{ print_next_token(); printf("\t\t I,L"); }
 	;
 
+// V -> var D; | VD;
 var_lst	: VAR var_dec ';'		
 	| var_lst var_dec ';'
 	;
 	
+// D -> id:Y | id,D
 var_dec	: IDENTIFIER ':' type_ex  { $$ = $3; $1 -> type_info = $3 -> lex_value;
 		if ($3 -> lex_value == 270) printf("\n int");
 		else if ($3 -> lex_value == 271) printf("\n double");
@@ -121,11 +128,79 @@ var_dec	: IDENTIFIER ':' type_ex  { $$ = $3; $1 -> type_info = $3 -> lex_value;
                 printf(" %s ;", $1 -> lexeme); }
 	;
 
- 
+// Y -> integer | real
 type_ex	: INTKEY		{ $$ = $1; }
-	| REALKEY
+	| REALKEY { $$ =  $1; }
 	;
 
+// Z -> M | ZM
+fun_lst : fun_dec   { print_next_token(); printf("\t\t Z");}
+  | fun_lst fun_dec { print_next_token(); printf("\t\t ZM"); }
+  
+  ;
+
+// M -> HVB
+fun_dec : header var_lst block { print_next_token(); printf("\t\t HVB"); }
+
+  ;
+// H -> function id(U):result Y;
+header : FUNCTION IDENTIFIER '(' arg_list ')' ':' type_ex';' {
+          print_next_token(); printf("\t\t function id(U):result Y;"); }
+
+  ;
+// U -> A | U;A
+arg_list :  arg_spec { print_next_token(); printf("\t\t A"); }
+  | arg_list ';' arg_spec { print_next_token(); printf("\t\t U;A"); }
+
+  ;
+// A -> id:Y | id,A
+arg_spec : IDENTIFIER ':' type_ex { print_next_token(); printf("\t\t id:Y"); }
+  | IDENTIFIER ',' arg_spec { print_next_token(); printf("\t\t id,Y"); }
+
+
+  ;
+// B -> begin K end
+block : BEGKEY st_list END {print_next_token(); printf("\t\t begin K end"); }
+
+ ;
+// K -> S | K;S
+st_list : statement       { print_next_token(); printf("\t\t S"); }
+  | st_list ';' statement { print_next_token(); printf("\t\t K;S"); }
+  ; 
+// S -> id:=E | if R then S else S | read(X) | write(X) | id(X) | B
+statement : IDENTIFIER ':' '=' { print_next_token(); printf("\t\t id:=E"); }
+
+  ;
+// R -> E relop E
+// X -> E | X,E
+// E -> E+T | E-T | T
+// T -> T*F | T/F | F
+// F -> C | id | id(X) | (E)
+// C -> whole_number | real_number
+
+/* 
+	P	program
+	Q	opening
+	V	var_lst
+	Z	fun_lst
+	B	block
+	I	io_id
+	L	id_list
+	D	var_dec
+	Y	type_ex
+	M	fun_dec
+	H 	header
+	U	arg_lst
+	A	arg_spec
+	K	st_list
+	S	statement
+	E	expression
+  R	rel_exp
+	X	ex_list
+	T	term
+	F	factor
+	C	constant
+*/
 %%
 
 int yylex()
@@ -134,7 +209,9 @@ int yylex()
   if (last_token != NULL)
     { answer = last_token -> code;
       if ((answer < 256) || (answer > 300)) yylval = NULL;
-      else yylval = last_token -> alias.reference;      
+      else yylval = last_token -> alias.reference;  
+
+      //printf("answer :%d\n", answer);
       return(answer);
     }
   else return (endmarker);
