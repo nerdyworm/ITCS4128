@@ -1,0 +1,19 @@
+program example(input, output);
+var a, b :integer; x, y : real;
+function root(n : integer; a : real) : result real;
+	var m : integer;
+	begin m := gcd(2*(n-1), b);
+	      root := a/m
+	end
+function gcd(m, n : integer): result integer;
+	var i : integer;
+	begin i := m - n;
+	      if i > 0 then gcd := gdc(n, i)
+	      else gcd := gcd(n, i+n)
+	end
+begin
+   read (a, b);
+   x := 0.007e-2 + 12.8*.03-54E2;
+   y := root(a+1,2*b*x);
+   write(y)
+end.
