@@ -1,0 +1,4 @@
+program cutling (a, b, c, d);
+	var x, y, z : real;
+            i, j, k : integer;
+.
