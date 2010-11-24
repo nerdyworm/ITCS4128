@@ -100,7 +100,7 @@ program :
 // Q -> program id(L);
 opening	: 
   PROGRAM IDENTIFIER '(' id_list ')' ';' 
-                              { print_next_and_rule("Q -> program id(L)"); printf(" %s", $2 -> lexeme);}
+                              { print_next_and_rule("Q -> program "); printf("%s(L)", $2 -> lexeme);}
 	;
 
 // I -> input | output | id
@@ -118,14 +118,14 @@ id_list	:
 
 // V -> var D; | VD;
 var_lst	: 
-    VAR var_dec ';'	          { print_next_and_rule("V -> var"); }
+    VAR var_dec ';'	          { print_next_and_rule("V -> var D;"); }
   | var_lst var_dec ';'       { print_next_and_rule("V -> VD;"); }
 	;
 	
 // D -> id:Y | id,D
 var_dec	: 
   IDENTIFIER ':' type_ex  {
-    print_next_and_rule("D -> id:Y");
+    print_next_and_rule("D -> "); printf("%s:Y", $1->lexeme);
     $$ = $3; 
     $1 -> type_info = $3 -> lex_value;
 
@@ -138,7 +138,7 @@ var_dec	:
   }
 	
   | IDENTIFIER ',' var_dec  { 
-    print_next_and_rule("D -> id,D");
+    print_next_and_rule("D -> "); printf("%s,D", $1->lexeme);
     $$ = $3; 
     $1 -> type_info = $3 -> lex_value;
                 
@@ -173,7 +173,7 @@ fun_dec :
 // H -> function id(U):result Y;
 header : 
   FUNCTION IDENTIFIER '(' arg_list ')' ':' RESULT type_ex';' 
-                              { print_next_and_rule("H -> function id(U):result Y;"); }
+                              { print_next_and_rule("H -> function "); printf("%s(U):result Y;", $2->lexeme); }
   ;
 
 // U -> A | U;A
@@ -185,8 +185,8 @@ arg_list :
 
 // A -> id:Y | id,A
 arg_spec : 
-    IDENTIFIER ':' type_ex    { print_next_and_rule("A -> id:Y"); }
-  | IDENTIFIER ',' arg_spec   { print_next_and_rule("A -> id,Y"); }
+    IDENTIFIER ':' type_ex    { print_next_and_rule("A -> "); printf("%s:Y", $1->lexeme); }
+  | IDENTIFIER ',' arg_spec   { print_next_and_rule("A -> "); printf("%s:Y", $1->lexeme); }
 
 
   ;
@@ -214,7 +214,7 @@ statement :
 
 // R -> E relop E
 rel_exp: 
-  expresion RELOP expresion   { print_next_and_rule("E relop E"); }
+  expresion RELOP expresion   { print_next_and_rule("R -> E "); printf("%s E", $2->lexeme); }
   ;
 
 // X -> E | X,E
@@ -240,15 +240,15 @@ term:
 // F -> C | id | id(X) | (E)
 factor: 
     constant                  { print_next_and_rule("F -> C"); }
-  | IDENTIFIER                { print_next_and_rule("F -> id");    printf(" %s", $1->lexeme);}
-  | IDENTIFIER '(' ex_list ')'{ print_next_and_rule("F -> id(X)"); printf(" %s", $1->lexeme);}
+  | IDENTIFIER                { print_next_and_rule("F -> "); printf("%s", $1->lexeme);}
+  | IDENTIFIER '(' ex_list ')'{ print_next_and_rule("F -> "); printf("%s(X)", $1->lexeme);}
   | '(' expresion ')'         { print_next_and_rule("F -> (E)"); }
   ;
 
 // C -> whole_number | real_number
 constant: 
-    INTEGER                   { print_next_and_rule("C -> whole_number");printf(" %s", $1->lexeme);}
-  | REAL                      { print_next_and_rule("C -> real_number"); printf(" %s", $1->lexeme);}
+    INTEGER                   { print_next_and_rule("C -> "); printf("%s", $1->lexeme);}
+  | REAL                      { print_next_and_rule("C -> "); printf("%s", $1->lexeme);}
   ;
 
 %%
