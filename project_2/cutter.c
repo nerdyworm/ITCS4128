@@ -94,7 +94,7 @@ pointer get_temp()
 // P -> QVZB. | QVB.
 program : 
     opening var_lst fun_lst block '.' { print_next_and_rule("P -> QVZB."); return 0;}
-  | opening var_lst block '.'	        { print_next_and_rule("P -> QVB.");  return 0;}
+  | opening var_lst block '.'         { print_next_and_rule("P -> QVB.");  return 0;}
 	;
 
 // Q -> program id(L);
@@ -104,20 +104,21 @@ opening	:
 
 // I -> input | output | id
 io_id	: 
-    INPUT	      { print_next_and_rule("I -> input");      }
-	| OUTPUT	    { print_next_and_rule("I -> output");     }
-	| IDENTIFIER	{ print_next_and_rule("I -> "); printf("%s", $1 -> lexeme); }
+    INPUT       { print_next_and_rule("I -> input");      }
+  | OUTPUT      { print_next_and_rule("I -> output");     }
+  | IDENTIFIER  { print_next_and_rule("I -> "); printf("%s", $1 -> lexeme); }
 	;
+
 // L -> I | I, L
 id_list	: 
-    io_id	            { print_next_and_rule("L -> I");   }
-	| io_id ',' id_list	{ print_next_and_rule("L -> I,L"); }
+    io_id             { print_next_and_rule("L -> I");   }
+  | io_id ',' id_list	{ print_next_and_rule("L -> I,L"); }
 	;
 
 // V -> var D; | VD;
 var_lst	: 
     VAR var_dec ';'	    { print_next_and_rule("V -> var"); }
-	| var_lst var_dec ';' { print_next_and_rule("V -> VD;"); }
+  | var_lst var_dec ';' { print_next_and_rule("V -> VD;"); }
 	;
 	
 // D -> id:Y | id,D
@@ -246,8 +247,8 @@ factor:
 
 // C -> whole_number | real_number
 constant: 
-    INTEGER   { print_next_and_rule("C -> whole_number");printf(" %s", $1->lexeme);}
-  | REAL      { print_next_and_rule("C -> real_number"); printf(" %s", $1->lexeme);}
+    INTEGER                   { print_next_and_rule("C -> whole_number");printf(" %s", $1->lexeme);}
+  | REAL                      { print_next_and_rule("C -> real_number"); printf(" %s", $1->lexeme);}
   ;
 
 %%
