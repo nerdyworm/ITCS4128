@@ -1,1 +1,1 @@
- yacc cutter.c && cc -w y.tab.c && ./a.out < sample_input.txt
+ yacc cutter.c && cc -w y.tab.c && ./a.out < example.txt 
