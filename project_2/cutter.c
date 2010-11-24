@@ -8,7 +8,7 @@
 //omit yytokentype enum
 #define YYTOKENTYPE
 #define YYSTYPE pointer
-
+//verbose error reporting for debugging
 #define YYERROR_VERBOSE 1
 
 int Q_count;
@@ -92,29 +92,31 @@ pointer get_temp()
 
 %%
 // P -> QVZB. | QVB.
-program : opening var_lst fun_lst block '.' { print_next_token(); printf("\t\t QVZB."); return 0;}
-  | opening var_lst block '.'	{ print_next_token(); printf("\t\t QV.");
-				  printf("\n\n SUCCESSFUL PARSING \n\n");
-				  return 0; }
-
+program : 
+    opening var_lst fun_lst block '.' { print_next_token(); printf("\t\t QVZB."); return 0;}
+  | opening var_lst block '.'	{ print_next_token(); printf("\t\t QV."); printf("\n\n SUCCESSFUL PARSING \n\n"); return 0; }
 	;
+
 // Q -> program id(L);
 opening	: PROGRAM IDENTIFIER '(' id_list ')' ';'
 	;
 
 // I -> input | output | id
-io_id	: INPUT	{ print_next_token(); printf("\t\t input"); }
-	| OUTPUT	{ print_next_token(); printf("\t\t output"); }
-	| IDENTIFIER	{ print_next_token(); printf("\t\t %s", $1 -> lexeme); }
+io_id	: 
+    INPUT	      { print_next_and_rule("input");      }
+	| OUTPUT	    { print_next_and_rule("output");     }
+	| IDENTIFIER	{ print_next_and_rule($1 -> lexeme); }
 	;
 // L -> I | I, L
-id_list	: io_id	{ print_next_token(); printf("\t\t I"); }
-	| io_id ',' id_list	{ print_next_token(); printf("\t\t I,L"); }
+id_list	: 
+    io_id	            { print_next_and_rule("I");   }
+	| io_id ',' id_list	{ print_next_and_rule("I,L"); }
 	;
 
 // V -> var D; | VD;
-var_lst	: VAR var_dec ';'		
-	| var_lst var_dec ';'
+var_lst	: 
+    VAR var_dec ';'	    { print_next_and_rule("var D"); }
+	| var_lst var_dec ';' { print_next_and_rule("VD;");   }
 	;
 	
 // D -> id:Y | id,D
@@ -129,12 +131,14 @@ var_dec	: IDENTIFIER ':' type_ex  { $$ = $3; $1 -> type_info = $3 -> lex_value;
 	;
 
 // Y -> integer | real
-type_ex	: INTKEY		{ $$ = $1; }
+type_ex	: 
+    INTKEY	{ $$ = $1;  }
 	| REALKEY { $$ =  $1; }
 	;
 
 // Z -> M | ZM
-fun_lst : fun_dec   { print_next_token(); printf("\t\t Z");}
+fun_lst : 
+    fun_dec         { print_next_token(); printf("\t\t Z");}
   | fun_lst fun_dec { print_next_token(); printf("\t\t ZM"); }
   
   ;
@@ -143,40 +147,84 @@ fun_lst : fun_dec   { print_next_token(); printf("\t\t Z");}
 fun_dec : header var_lst block { print_next_token(); printf("\t\t HVB"); }
 
   ;
+
 // H -> function id(U):result Y;
-header : FUNCTION IDENTIFIER '(' arg_list ')' ':' type_ex';' {
-          print_next_token(); printf("\t\t function id(U):result Y;"); }
+header : 
+  FUNCTION IDENTIFIER '(' arg_list ')' ':' RESULT type_ex';' { print_next_and_rule("function id(U):result Y;"); }
 
   ;
+
 // U -> A | U;A
 arg_list :  arg_spec { print_next_token(); printf("\t\t A"); }
   | arg_list ';' arg_spec { print_next_token(); printf("\t\t U;A"); }
 
   ;
+
 // A -> id:Y | id,A
 arg_spec : IDENTIFIER ':' type_ex { print_next_token(); printf("\t\t id:Y"); }
   | IDENTIFIER ',' arg_spec { print_next_token(); printf("\t\t id,Y"); }
 
 
   ;
+
 // B -> begin K end
 block : BEGKEY st_list END {print_next_token(); printf("\t\t begin K end"); }
 
  ;
-// K -> S | K;S
-st_list : statement       { print_next_token(); printf("\t\t S"); }
-  | st_list ';' statement { print_next_token(); printf("\t\t K;S"); }
-  ; 
-// S -> id:=E | if R then S else S | read(X) | write(X) | id(X) | B
-statement : IDENTIFIER ':' '=' { print_next_token(); printf("\t\t id:=E"); }
 
+// K -> S | K;S
+st_list : 
+    statement             { print_next_and_rule("S"); }
+  | st_list ';' statement { print_next_and_rule("K;S"); }
+  ; 
+
+// S -> id:=E | if R then S else S | read(X) | write(X) | id(X) | B
+statement : 
+    IDENTIFIER ASSIGN expresion               { print_next_and_rule("id:=E"); }
+  | IF rel_exp THEN statement ELSE statement  { print_next_and_rule("if R then S else S"); }
+  | READ '(' ex_list ')'                      { print_next_and_rule("read(X)"); }
+  | WRITE '(' ex_list ')'                     { print_next_and_rule("write(X)"); }
+  | IDENTIFIER '(' ex_list ')'                { print_next_and_rule("id(X)");}
+  | block                                     { print_next_and_rule("B"); }
   ;
+
 // R -> E relop E
+rel_exp: 
+  expresion RELOP expresion { print_next_and_rule("E relop E"); }
+  ;
+
 // X -> E | X,E
+ex_list: 
+    expresion               { print_next_and_rule("E"); }
+  | expresion ',' ex_list   { print_next_and_rule("X,E"); }
+  ;
+
 // E -> E+T | E-T | T
+expresion: 
+    expresion '+' term { print_next_and_rule("E+T"); }
+  | expresion '-' term { print_next_and_rule("E-T"); }
+  | term               { print_next_and_rule("T");   }
+  ;
+
 // T -> T*F | T/F | F
+term: term '*' factor { print_next_token(); printf("\t\t T*F"); }
+  |   term '/' factor { print_next_token(); printf("\t\t T/F"); }
+  |   factor
+  ;
+
 // F -> C | id | id(X) | (E)
+factor: constant                { print_next_and_rule("C"); }
+  | IDENTIFIER                  { print_next_and_rule("id"); }
+  | IDENTIFIER '(' ex_list ')'  { print_next_and_rule("id(X)"); }
+  | '(' expresion ')'           { print_next_and_rule("(E)"); }
+  ;
+
 // C -> whole_number | real_number
+constant: INTEGER  { print_next_token(); printf("\t\t whole_numer"); }
+  | REAL  { print_next_token(); printf("\t\t real_number"); }
+  ;
+
+
 
 /* 
 	P	program
@@ -232,6 +280,12 @@ void print_next_token()
                 printf("\n%s\t\t", next_token -> alias.reference -> lexeme);
 	      }
 	}     
+}
+
+void print_next_and_rule(char *rule)
+{
+  print_next_token();
+  printf("\t\t %s", rule);
 }
 
 
