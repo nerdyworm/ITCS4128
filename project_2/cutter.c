@@ -99,31 +99,31 @@ program :
 
 // Q -> program id(L);
 opening	: 
-  PROGRAM IDENTIFIER '(' id_list ')' ';' { print_next_and_rule("Q -> program id(L)"); printf(" %s", $2 -> lexeme);}
+  PROGRAM IDENTIFIER '(' id_list ')' ';' 
+                              { print_next_and_rule("Q -> program id(L)"); printf(" %s", $2 -> lexeme);}
 	;
 
 // I -> input | output | id
 io_id	: 
-    INPUT       { print_next_and_rule("I -> input");      }
-  | OUTPUT      { print_next_and_rule("I -> output");     }
-  | IDENTIFIER  { print_next_and_rule("I -> "); printf("%s", $1 -> lexeme); }
+    INPUT                     { print_next_and_rule("I -> input");      }
+  | OUTPUT                    { print_next_and_rule("I -> output");     }
+  | IDENTIFIER                { print_next_and_rule("I -> "); printf("%s", $1 -> lexeme); }
 	;
 
 // L -> I | I, L
 id_list	: 
-    io_id             { print_next_and_rule("L -> I");   }
-  | io_id ',' id_list	{ print_next_and_rule("L -> I,L"); }
+    io_id                     { print_next_and_rule("L -> I");   }
+  | io_id ',' id_list         { print_next_and_rule("L -> I,L"); }
 	;
 
 // V -> var D; | VD;
 var_lst	: 
-    VAR var_dec ';'	    { print_next_and_rule("V -> var"); }
-  | var_lst var_dec ';' { print_next_and_rule("V -> VD;"); }
+    VAR var_dec ';'	          { print_next_and_rule("V -> var"); }
+  | var_lst var_dec ';'       { print_next_and_rule("V -> VD;"); }
 	;
 	
 // D -> id:Y | id,D
 var_dec	: 
-
   IDENTIFIER ':' type_ex  {
     print_next_and_rule("D -> id:Y");
     $$ = $3; 
