@@ -11,14 +11,16 @@
 //verbose error reporting for debugging
 #define YYERROR_VERBOSE 1
 
+#define TEMP 999
+
 int Q_count;
 int T_count;
 char conv[10];
 char word[MAX_LENGTH];
 
 struct quad
-{ int serial;
-  int opcode;
+{ int serial; //counter
+  int opcode; //operation
   pointer op1;
   pointer op2;
   union
@@ -32,6 +34,7 @@ typedef struct quad *item;
 
 item first_quad;
 item last_quad;
+item quad;
 
 item add_quad(int operator, pointer first, pointer secnd)
 { Q_count++;
@@ -47,20 +50,60 @@ item add_quad(int operator, pointer first, pointer secnd)
 }
 
 
+
+
 pointer get_temp()
-{ int a, i, k;
-  char back[MAX_LENGTH];
-  k = 0;
-  a = ++T_count;
-  while (a > 0)
-      { back[k++] = conv[a % 10];
-	a = a / 10;
-      }
-  k = k -1;
-  for (i = k; i >= 0; i--) word[4+k-i] = back[i];
-  return(make_entry(IDENTIFIER, word));
+{
+  char word[MAX_LENGTH];
+
+  sprintf(word, "temp_%d", ++T_count);
+
+  return(make_entry(TEMP, word));
 }
  
+
+void print_quad(struct quad *q)
+{
+  
+  printf("\t(%d)\t", q->serial);
+
+  if(q->opcode == ASSIGN)
+    printf(" := ");
+  else
+    printf(" %c ", q->opcode);
+
+  if(q->op1 != NULL)
+    printf(" %s ", q->op1->lexeme);
+  else
+    printf(" _ ");
+
+  if(q->op2 != NULL)
+    printf(" %s ",  q->op2->lexeme);
+  else
+    printf(" _ ");
+
+  if(q->either.op3 != NULL)
+    printf(" %s ", q->either.op3->lexeme);
+  else
+    printf(" _ ");
+}
+
+void print_quad_sequence()
+{
+  struct quad *current;
+  printf("\n\t Here is the quad sequence\n");
+
+  current = first_quad->next;
+
+  while(current != NULL)
+  {
+    printf("\n");
+    print_quad(current);
+    current = current->next;
+  }
+
+}
+
  
 %}
 
@@ -204,7 +247,15 @@ st_list :
 
 // S -> id:=E | if R then S else S | read(X) | write(X) | id(X) | B
 statement : 
-    IDENTIFIER ASSIGN expresion               { print_next_and_rule("S -> id:=E"); }
+    IDENTIFIER ASSIGN expresion               { print_next_and_rule("S -> "); printf("%s:=E", $1->lexeme); 
+      
+      if($3->lex_value == TEMP)
+        T_count--;
+
+      quad = add_quad(ASSIGN, $3, NULL);
+      quad->either.op3 = $1;
+      print_quad(quad);
+    }
   | IF rel_exp THEN statement ELSE statement  { print_next_and_rule("S -> if R then S else S"); }
   | READ '(' ex_list ')'                      { print_next_and_rule("S -> read(X)"); }
   | WRITE '(' ex_list ')'                     { print_next_and_rule("S -> write(X)"); }
@@ -225,15 +276,82 @@ ex_list:
 
 // E -> E+T | E-T | T
 expresion: 
-    expresion '+' term        { print_next_and_rule("E -> E+T"); }
-  | expresion '-' term        { print_next_and_rule("E -> E-T"); }
-  | term                      { print_next_and_rule("E -> T");   }
+    expresion '+' term        { print_next_and_rule("E -> E+T"); 
+     
+      if($1->lex_value == TEMP) {
+        $$ = $1;
+        if($3->lex_value == TEMP)
+          T_count--;
+      } else if($3->lex_value == TEMP) {
+          $$ = $3;
+      } else {
+          $$ = get_temp();
+      }
+
+      quad = add_quad((int) '+', $1, $3);
+      quad->either.op3 = $$;
+      print_quad(quad);
+
+  }
+
+  | expresion '-' term        { print_next_and_rule("E -> E-T"); 
+
+      if($1->lex_value == TEMP) {
+        $$ = $1;
+        if($3->lex_value == TEMP)
+          T_count--;
+      } else if($3->lex_value == TEMP) {
+          $$ = $3;
+      } else {
+          $$ = get_temp();
+      }
+
+      quad = add_quad((int) '-', $1, $3);
+      quad->either.op3 = $$;
+      print_quad(quad);
+
+  }
+
+  | term                      { print_next_and_rule("E -> T"); } 
   ;
 
 // T -> T*F | T/F | F
 term: 
-    term '*' factor           { print_next_and_rule("T -> T*F"); }
-  | term '/' factor           { print_next_and_rule("T -> T/F"); }
+    term '*' factor           { print_next_and_rule("T -> T*F"); 
+    
+      
+      if($1->lex_value == TEMP) {
+        $$ = $1;
+        if($3->lex_value == TEMP)
+          T_count--;
+      } else if($3->lex_value == TEMP) {
+          $$ = $3;
+      } else {
+          $$ = get_temp();
+      }
+
+      quad = add_quad((int) '*', $1, $3);
+      quad->either.op3 = $$;
+      print_quad(quad);
+   
+    }
+  | term '/' factor           { print_next_and_rule("T -> T/F"); 
+  
+      if($1->lex_value == TEMP) {
+        $$ = $1;
+        if($3->lex_value == TEMP)
+          T_count--;
+      } else if($3->lex_value == TEMP) {
+          $$ = $3;
+      } else {
+          $$ = get_temp();
+      }
+
+      quad = add_quad((int) '/', $1, $3);
+      quad->either.op3 = $$;
+      print_quad(quad);
+  
+  }
   | factor                    { print_next_and_rule("T -> F");   }
   ;
 
@@ -242,7 +360,7 @@ factor:
     constant                  { print_next_and_rule("F -> C"); }
   | IDENTIFIER                { print_next_and_rule("F -> "); printf("%s", $1->lexeme);}
   | IDENTIFIER '(' ex_list ')'{ print_next_and_rule("F -> "); printf("%s(X)", $1->lexeme);}
-  | '(' expresion ')'         { print_next_and_rule("F -> (E)"); }
+  | '(' expresion ')'         { print_next_and_rule("F -> (E)"); $$ = $2;}//left = expression, not (, this took an hour to find :(
   ;
 
 // C -> whole_number | real_number
@@ -316,7 +434,8 @@ int main()
   printf("\n\nNext Token\tTop of the Stack\n_____________________________________\n");
   last_token = first_token;
   yyparse();
-  print_table();
+  //print_table();
+  print_quad_sequence();
   printf("\n\n THE PARSER IS FINISHED\n---------------------------------------\n");
   return 0;
 }

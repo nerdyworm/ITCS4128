@@ -1,0 +1,5 @@
+program example(input, output);
+	begin m := gcd(2*(n-1), b);
+	      root := a/m
+	end
+end.

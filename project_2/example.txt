@@ -1,0 +1,5 @@
+program example(input, output);
+var a, b :integer; x, y, z: real;
+begin
+    x := a+b-c*(e+f-g*(h+i-j*k/(l-m)+n)-p)+q
+end.
