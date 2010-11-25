@@ -6,8 +6,11 @@
 #include "lex.yy.c"
 
 //omit yytokentype enum
+//fixes bison/flex/etc compliation issues
 #define YYTOKENTYPE
+
 #define YYSTYPE pointer
+
 //verbose error reporting for debugging
 #define YYERROR_VERBOSE 1
 
@@ -49,18 +52,12 @@ item add_quad(int operator, pointer first, pointer secnd)
   return(last_quad);
 }
 
-
-
-
 pointer get_temp()
 {
-  char word[MAX_LENGTH];
-
   sprintf(word, "temp_%d", ++T_count);
 
   return(make_entry(TEMP, word));
 }
- 
 
 void print_quad(struct quad *q)
 {
@@ -101,13 +98,12 @@ void print_quad_sequence()
     print_quad(current);
     current = current->next;
   }
-
 }
 
- 
 %}
 
 //explicit values for the token identifiers
+//fixes bison/flex/etc compilation issues
 %start program
 
 %token INTEGER 257
@@ -134,6 +130,7 @@ void print_quad_sequence()
 %token endmarker 278
 
 %%
+
 // P -> QVZB. | QVB.
 program : 
     opening var_lst fun_lst block '.' { print_next_and_rule("P -> QVZB."); return 0;}
@@ -228,19 +225,20 @@ arg_list :
 
 // A -> id:Y | id,A
 arg_spec : 
-    IDENTIFIER ':' type_ex    { print_next_and_rule("A -> "); printf("%s:Y", $1->lexeme); }
-  | IDENTIFIER ',' arg_spec   { print_next_and_rule("A -> "); printf("%s:Y", $1->lexeme); }
-
-
+    IDENTIFIER ':' type_ex    { print_next_and_rule("A -> "); printf("%s:Y", $1->lexeme); 
+      $$ = $3;
+    }
+  | IDENTIFIER ',' arg_spec   { print_next_and_rule("A -> "); printf("%s:Y", $1->lexeme); 
+      $$ = $3;
+  }
   ;
 
 // B -> begin K end
-block : BEGKEY st_list END    {print_next_and_rule("B -> begin K end"); }
-
+block : BEGKEY st_list END    { print_next_and_rule("B -> begin K end"); }
  ;
 
 // K -> S | K;S
-st_list : 
+st_list :
     statement                 { print_next_and_rule("K -> S"); }
   | st_list ';' statement     { print_next_and_rule("K -> K;S"); }
   ; 
@@ -255,7 +253,9 @@ statement :
       quad = add_quad(ASSIGN, $3, NULL);
       quad->either.op3 = $1;
       print_quad(quad);
+
     }
+
   | IF rel_exp THEN statement ELSE statement  { print_next_and_rule("S -> if R then S else S"); }
   | READ '(' ex_list ')'                      { print_next_and_rule("S -> read(X)"); }
   | WRITE '(' ex_list ')'                     { print_next_and_rule("S -> write(X)"); }
@@ -270,8 +270,16 @@ rel_exp:
 
 // X -> E | X,E
 ex_list: 
-    expresion                 { print_next_and_rule("X -> E"); }
-  | expresion ',' ex_list     { print_next_and_rule("X -> X,E"); }
+    expresion                 { print_next_and_rule("X -> E"); 
+      quad = add_quad((int)'(', $1, NULL);
+      print_quad(quad);
+    
+    }
+
+  | ex_list ',' expresion     { print_next_and_rule("X -> X,E"); 
+      quad = add_quad((int)',', $3, NULL);
+      print_quad(quad);
+  }
   ;
 
 // E -> E+T | E-T | T
@@ -291,7 +299,6 @@ expresion:
       quad = add_quad((int) '+', $1, $3);
       quad->either.op3 = $$;
       print_quad(quad);
-
   }
 
   | expresion '-' term        { print_next_and_rule("E -> E-T"); 
@@ -309,7 +316,6 @@ expresion:
       quad = add_quad((int) '-', $1, $3);
       quad->either.op3 = $$;
       print_quad(quad);
-
   }
 
   | term                      { print_next_and_rule("E -> T"); } 
@@ -318,7 +324,6 @@ expresion:
 // T -> T*F | T/F | F
 term: 
     term '*' factor           { print_next_and_rule("T -> T*F"); 
-    
       
       if($1->lex_value == TEMP) {
         $$ = $1;
@@ -333,8 +338,8 @@ term:
       quad = add_quad((int) '*', $1, $3);
       quad->either.op3 = $$;
       print_quad(quad);
-   
     }
+
   | term '/' factor           { print_next_and_rule("T -> T/F"); 
   
       if($1->lex_value == TEMP) {
@@ -350,8 +355,8 @@ term:
       quad = add_quad((int) '/', $1, $3);
       quad->either.op3 = $$;
       print_quad(quad);
-  
   }
+
   | factor                    { print_next_and_rule("T -> F");   }
   ;
 
@@ -359,8 +364,11 @@ term:
 factor: 
     constant                  { print_next_and_rule("F -> C"); }
   | IDENTIFIER                { print_next_and_rule("F -> "); printf("%s", $1->lexeme);}
-  | IDENTIFIER '(' ex_list ')'{ print_next_and_rule("F -> "); printf("%s(X)", $1->lexeme);}
-  | '(' expresion ')'         { print_next_and_rule("F -> (E)"); $$ = $2;}//left = expression, not (, this took an hour to find :(
+  | IDENTIFIER '(' ex_list ')'{ print_next_and_rule("F -> "); printf("%s(X)", $1->lexeme);
+      quad = add_quad((int) ')', $1, NULL);
+      print_quad(quad);
+  }
+  | '(' expresion ')'         { print_next_and_rule("F -> (E)"); $$ = $2;}//left = expression, not (, this took an hour to figure out :-(
   ;
 
 // C -> whole_number | real_number
@@ -378,8 +386,6 @@ int yylex()
     { answer = last_token -> code;
       if ((answer < 256) || (answer > 300)) yylval = NULL;
       else yylval = last_token -> alias.reference;  
-
-      //printf("answer :%d\n", answer);
       return(answer);
     }
   else return (endmarker);
@@ -430,11 +436,11 @@ int main()
   strcpy(word, "temp");
   Q_count = 0;
   T_count = 0;
-  printf("\n\n PARSING BEGINS HERE\n---------------------------------------\n");
+  printf("\n\n PARSING BEGINS HERE ");
   printf("\n\nNext Token\tTop of the Stack\n_____________________________________\n");
   last_token = first_token;
   yyparse();
-  //print_table();
+  print_table();
   print_quad_sequence();
   printf("\n\n THE PARSER IS FINISHED\n---------------------------------------\n");
   return 0;

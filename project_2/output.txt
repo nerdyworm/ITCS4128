@@ -1,0 +1,274 @@
+
+
+ ECHOING THE INPUT STREAM: 
+
+
+ Line  1:  program example(input, output);
+ Line  2:  var a, b :integer; x, y, z: real;
+ Line  3:  begin
+ Line  4:      x := a+b-c*(e+f-g*(h+i-j*k/(l-m)+n)-p)+q
+ Line  5:  end.
+ Line  6:  
+
+ HERE IS THE TOKEN SEQUENCE :
+
+ 260   program 
+ 259   example 
+  40   ( 
+ 272   input 
+  44   , 
+ 273   output 
+  41   ) 
+  59   ; 
+ 261   var 
+ 259   a 
+  44   , 
+ 259   b 
+  58   : 
+ 270   integer 
+  59   ; 
+ 259   x 
+  44   , 
+ 259   y 
+  44   , 
+ 259   z 
+  58   : 
+ 271   real 
+  59   ; 
+ 265   begin 
+ 259   x 
+ 276   := 
+ 259   a 
+  43   + 
+ 259   b 
+  45   - 
+ 259   c 
+  42   * 
+  40   ( 
+ 259   e 
+  43   + 
+ 259   f 
+  45   - 
+ 259   g 
+  42   * 
+  40   ( 
+ 259   h 
+  43   + 
+ 259   i 
+  45   - 
+ 259   j 
+  42   * 
+ 259   k 
+  47   / 
+  40   ( 
+ 259   l 
+  45   - 
+ 259   m 
+  41   ) 
+  43   + 
+ 259   n 
+  41   ) 
+  45   - 
+ 259   p 
+  41   ) 
+  43   + 
+ 259   q 
+ 266   end 
+  46   . 
+
+
+ THE TOKENIZER IS FINISHED 
+
+
+ THE CONTENTS OF THE SYMBOL TABLE:
+
+group[ 0] ->  259 k 
+group[ 1] ->  265 begin 
+group[ 1] ->  264 procedure 
+group[13] ->  281 > 
+group[13] ->  262 function 
+group[14] ->  269 else 
+group[20] ->  275 write 
+group[20] ->  263 result 
+group[22] ->  259 b 
+group[22] ->  274 read 
+group[22] ->  271 real 
+group[23] ->  259 f 
+group[24] ->  259 j 
+group[25] ->  259 n 
+group[28] ->  259 z 
+group[32] ->  276 := 
+group[33] ->  280 >= 
+group[37] ->  279 = 
+group[46] ->  259 a 
+group[47] ->  259 e 
+group[48] ->  259 i 
+group[48] ->  261 var 
+group[49] ->  259 m 
+group[50] ->  259 q 
+group[50] ->  282 != 
+group[52] ->  259 y 
+group[59] ->  273 output 
+group[61] ->  277 < 
+group[61] ->  268 then 
+group[72] ->  259 h 
+group[73] ->  259 l 
+group[74] ->  259 p 
+group[75] ->  266 end 
+group[76] ->  259 x 
+group[77] ->  259 example 
+group[79] ->  267 if 
+group[81] ->  278 <= 
+group[82] ->  272 input 
+group[86] ->  282 <> 
+group[90] ->  270 integer 
+group[95] ->  259 c 
+group[96] ->  259 g 
+group[96] ->  260 program 
+
+
+ PARSING BEGINS HERE 
+
+Next Token	Top of the Stack
+_____________________________________
+
+,	   			 I -> input
+)	   			 I -> output
+;	   			 L -> I
+;	   			 L -> I,L
+var				 Q -> program example(L)
+;	   			 Y -> integer
+;	   			 D -> b:Y int b;
+;	   			 D -> a,D int a;
+x				 V -> var D;
+;	   			 Y -> real
+;	   			 D -> z:Y double z;
+;	   			 D -> y,D double y;
+;	   			 D -> x,D double x;
+begin				 V -> VD;
+b				 F -> a
+b				 T -> F
+b				 E -> T
+c				 F -> b
+c				 T -> F
+c				 E -> E+T	(1)	 +  a  b  temp_1 
+(	   			 F -> c
+(	   			 T -> F
+f				 F -> e
+f				 T -> F
+f				 E -> T
+g				 F -> f
+g				 T -> F
+g				 E -> E+T	(2)	 +  e  f  temp_2 
+(	   			 F -> g
+(	   			 T -> F
+i				 F -> h
+i				 T -> F
+i				 E -> T
+j				 F -> i
+j				 T -> F
+j				 E -> E+T	(3)	 +  h  i  temp_3 
+k				 F -> j
+k				 T -> F
+(	   			 F -> k
+(	   			 T -> T*F	(4)	 *  j  k  temp_4 
+m				 F -> l
+m				 T -> F
+m				 E -> T
++	   			 F -> m
++	   			 T -> F
++	   			 E -> E-T	(5)	 -  l  m  temp_5 
++	   			 F -> (E)
++	   			 T -> T/F	(6)	 /  temp_4  temp_5  temp_4 
+n				 E -> E-T	(7)	 -  temp_3  temp_4  temp_3 
+-	   			 F -> n
+-	   			 T -> F
+-	   			 E -> E+T	(8)	 +  temp_3  n  temp_3 
+-	   			 F -> (E)
+-	   			 T -> T*F	(9)	 *  g  temp_3  temp_3 
+p				 E -> E-T	(10)	 -  temp_2  temp_3  temp_2 
++	   			 F -> p
++	   			 T -> F
++	   			 E -> E-T	(11)	 -  temp_2  p  temp_2 
++	   			 F -> (E)
++	   			 T -> T*F	(12)	 *  c  temp_2  temp_2 
+q				 E -> E-T	(13)	 -  temp_1  temp_2  temp_1 
+.	   			 F -> q
+.	   			 T -> F
+.	   			 E -> E+T	(14)	 +  temp_1  q  temp_1 
+.	   			 S -> x:=E	(15)	 :=  temp_1  _  x 
+.	   			 K -> S
+.	   			 B -> begin K end
+$	   			 P -> QVB.
+
+ THE CONTENTS OF THE SYMBOL TABLE:
+
+group[ 0] ->  259 k 
+group[ 1] ->  265 begin 
+group[ 1] ->  264 procedure 
+group[13] ->  281 > 
+group[13] ->  262 function 
+group[14] ->  269 else 
+group[20] ->  999 temp_4 
+group[20] ->  275 write 
+group[20] ->  263 result 
+group[22] ->  259 b   (type = 270)
+group[22] ->  274 read 
+group[22] ->  271 real 
+group[23] ->  259 f 
+group[24] ->  999 temp_1 
+group[24] ->  259 j 
+group[25] ->  259 n 
+group[28] ->  259 z   (type = 271)
+group[32] ->  276 := 
+group[33] ->  280 >= 
+group[37] ->  279 = 
+group[46] ->  259 a   (type = 270)
+group[47] ->  259 e 
+group[48] ->  259 i 
+group[48] ->  261 var 
+group[49] ->  259 m 
+group[50] ->  259 q 
+group[50] ->  282 != 
+group[51] ->  999 temp_5 
+group[52] ->  259 y   (type = 271)
+group[55] ->  999 temp_2 
+group[59] ->  273 output 
+group[61] ->  277 < 
+group[61] ->  268 then 
+group[72] ->  259 h 
+group[73] ->  259 l 
+group[74] ->  259 p 
+group[75] ->  266 end 
+group[76] ->  259 x   (type = 271)
+group[77] ->  259 example 
+group[79] ->  267 if 
+group[81] ->  278 <= 
+group[82] ->  272 input 
+group[86] ->  999 temp_3 
+group[86] ->  282 <> 
+group[90] ->  270 integer 
+group[95] ->  259 c 
+group[96] ->  259 g 
+group[96] ->  260 program 
+
+	 Here is the quad sequence
+
+	(1)	 +  a  b  temp_1 
+	(2)	 +  e  f  temp_2 
+	(3)	 +  h  i  temp_3 
+	(4)	 *  j  k  temp_4 
+	(5)	 -  l  m  temp_5 
+	(6)	 /  temp_4  temp_5  temp_4 
+	(7)	 -  temp_3  temp_4  temp_3 
+	(8)	 +  temp_3  n  temp_3 
+	(9)	 *  g  temp_3  temp_3 
+	(10)	 -  temp_2  temp_3  temp_2 
+	(11)	 -  temp_2  p  temp_2 
+	(12)	 *  c  temp_2  temp_2 
+	(13)	 -  temp_1  temp_2  temp_1 
+	(14)	 +  temp_1  q  temp_1 
+	(15)	 :=  temp_1  _  x 
+
+ THE PARSER IS FINISHED
+---------------------------------------
