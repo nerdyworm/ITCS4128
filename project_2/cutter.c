@@ -14,6 +14,7 @@
 //verbose error reporting for debugging
 #define YYERROR_VERBOSE 1
 
+//easy type comaparions for quads
 #define TEMP 999
 
 int Q_count;
@@ -37,7 +38,7 @@ typedef struct quad *item;
 
 item first_quad;
 item last_quad;
-item quad;
+item quad; //temp used in rules
 
 item add_quad(int operator, pointer first, pointer secnd)
 { Q_count++;
@@ -167,7 +168,6 @@ var_dec	:
   IDENTIFIER ':' type_ex  {
     print_next_and_rule("D -> "); printf("%s:Y", $1->lexeme);
     $$ = $3; 
-    $1 -> type_info = $3 -> lex_value;
 
 		if ($3 -> lex_value == 270) 
       printf(" int");
@@ -180,7 +180,6 @@ var_dec	:
   | IDENTIFIER ',' var_dec  { 
     print_next_and_rule("D -> "); printf("%s,D", $1->lexeme);
     $$ = $3; 
-    $1 -> type_info = $3 -> lex_value;
                 
     if ($3 -> lex_value == 270) 
       printf(" int");
@@ -248,12 +247,11 @@ statement :
     IDENTIFIER ASSIGN expresion               { print_next_and_rule("S -> "); printf("%s:=E", $1->lexeme); 
       
       if($3->lex_value == TEMP)
-        T_count--;
+          T_count--;
 
       quad = add_quad(ASSIGN, $3, NULL);
       quad->either.op3 = $1;
       print_quad(quad);
-
     }
 
   | IF rel_exp THEN statement ELSE statement  { print_next_and_rule("S -> if R then S else S"); }
@@ -270,16 +268,8 @@ rel_exp:
 
 // X -> E | X,E
 ex_list: 
-    expresion                 { print_next_and_rule("X -> E"); 
-      quad = add_quad((int)'(', $1, NULL);
-      print_quad(quad);
-    
-    }
-
-  | ex_list ',' expresion     { print_next_and_rule("X -> X,E"); 
-      quad = add_quad((int)',', $3, NULL);
-      print_quad(quad);
-  }
+    expresion                 { print_next_and_rule("X -> E");   }
+  | ex_list ',' expresion     { print_next_and_rule("X -> X,E"); }
   ;
 
 // E -> E+T | E-T | T
@@ -364,11 +354,10 @@ term:
 factor: 
     constant                  { print_next_and_rule("F -> C"); }
   | IDENTIFIER                { print_next_and_rule("F -> "); printf("%s", $1->lexeme);}
-  | IDENTIFIER '(' ex_list ')'{ print_next_and_rule("F -> "); printf("%s(X)", $1->lexeme);
-      quad = add_quad((int) ')', $1, NULL);
-      print_quad(quad);
+  | IDENTIFIER '(' ex_list ')'{ print_next_and_rule("F -> "); printf("%s(X)", $1->lexeme); }
+  | '(' expresion ')'         { print_next_and_rule("F -> (E)"); 
+    $$ = $2;//left = expression, not (, this took an hour to figure out :-(
   }
-  | '(' expresion ')'         { print_next_and_rule("F -> (E)"); $$ = $2;}//left = expression, not (, this took an hour to figure out :-(
   ;
 
 // C -> whole_number | real_number

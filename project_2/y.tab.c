@@ -85,6 +85,7 @@
 //verbose error reporting for debugging
 #define YYERROR_VERBOSE 1
 
+//easy type comaparions for quads
 #define TEMP 999
 
 int Q_count;
@@ -108,7 +109,7 @@ typedef struct quad *item;
 
 item first_quad;
 item last_quad;
-item quad;
+item quad; //temp used in rules
 
 item add_quad(int operator, pointer first, pointer secnd)
 { Q_count++;
@@ -174,7 +175,7 @@ void print_quad_sequence()
 
 
 /* Line 189 of yacc.c  */
-#line 178 "y.tab.c"
+#line 179 "y.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -264,7 +265,7 @@ typedef int YYSTYPE;
 
 
 /* Line 264 of yacc.c  */
-#line 268 "y.tab.c"
+#line 269 "y.tab.c"
 
 #ifdef short
 # undef short
@@ -568,11 +569,11 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   136,   136,   137,   142,   148,   149,   150,   155,   156,
-     161,   162,   167,   180,   196,   197,   202,   203,   209,   215,
-     221,   222,   228,   231,   237,   242,   243,   248,   259,   260,
-     261,   262,   263,   268,   273,   279,   287,   304,   321,   326,
-     343,   360,   365,   366,   367,   371,   376,   377
+       0,   137,   137,   138,   143,   149,   150,   151,   156,   157,
+     162,   163,   168,   181,   197,   198,   203,   204,   210,   216,
+     222,   223,   229,   232,   238,   243,   244,   249,   256,   257,
+     258,   259,   260,   265,   270,   271,   276,   293,   310,   315,
+     332,   349,   354,   355,   356,   357,   362,   363
 };
 #endif
 
@@ -1538,81 +1539,81 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 136 "cutter.c"
+#line 137 "cutter.c"
     { print_next_and_rule("P -> QVZB."); return 0;}
     break;
 
   case 3:
 
 /* Line 1455 of yacc.c  */
-#line 137 "cutter.c"
+#line 138 "cutter.c"
     { print_next_and_rule("P -> QVB.");  return 0;}
     break;
 
   case 4:
 
 /* Line 1455 of yacc.c  */
-#line 143 "cutter.c"
+#line 144 "cutter.c"
     { print_next_and_rule("Q -> program "); printf("%s(L)", (yyvsp[(2) - (6)]) -> lexeme);}
     break;
 
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 148 "cutter.c"
+#line 149 "cutter.c"
     { print_next_and_rule("I -> input");      }
     break;
 
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 149 "cutter.c"
+#line 150 "cutter.c"
     { print_next_and_rule("I -> output");     }
     break;
 
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 150 "cutter.c"
+#line 151 "cutter.c"
     { print_next_and_rule("I -> "); printf("%s", (yyvsp[(1) - (1)]) -> lexeme); }
     break;
 
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 155 "cutter.c"
+#line 156 "cutter.c"
     { print_next_and_rule("L -> I");   }
     break;
 
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 156 "cutter.c"
+#line 157 "cutter.c"
     { print_next_and_rule("L -> I,L"); }
     break;
 
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 161 "cutter.c"
+#line 162 "cutter.c"
     { print_next_and_rule("V -> var D;"); }
     break;
 
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 162 "cutter.c"
+#line 163 "cutter.c"
     { print_next_and_rule("V -> VD;"); }
     break;
 
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 167 "cutter.c"
+#line 168 "cutter.c"
     {
     print_next_and_rule("D -> "); printf("%s:Y", (yyvsp[(1) - (3)])->lexeme);
     (yyval) = (yyvsp[(3) - (3)]); 
-    (yyvsp[(1) - (3)]) -> type_info = (yyvsp[(3) - (3)]) -> lex_value;
+    //$1 -> type_info = $3 -> lex_value;
 
 		if ((yyvsp[(3) - (3)]) -> lex_value == 270) 
       printf(" int");
@@ -1626,7 +1627,7 @@ yyreduce:
   case 13:
 
 /* Line 1455 of yacc.c  */
-#line 180 "cutter.c"
+#line 181 "cutter.c"
     { 
     print_next_and_rule("D -> "); printf("%s,D", (yyvsp[(1) - (3)])->lexeme);
     (yyval) = (yyvsp[(3) - (3)]); 
@@ -1644,63 +1645,63 @@ yyreduce:
   case 14:
 
 /* Line 1455 of yacc.c  */
-#line 196 "cutter.c"
+#line 197 "cutter.c"
     { print_next_and_rule("Y -> integer");}
     break;
 
   case 15:
 
 /* Line 1455 of yacc.c  */
-#line 197 "cutter.c"
+#line 198 "cutter.c"
     { print_next_and_rule("Y -> real"); }
     break;
 
   case 16:
 
 /* Line 1455 of yacc.c  */
-#line 202 "cutter.c"
+#line 203 "cutter.c"
     { print_next_and_rule("Z -> M"); }
     break;
 
   case 17:
 
 /* Line 1455 of yacc.c  */
-#line 203 "cutter.c"
+#line 204 "cutter.c"
     { print_next_and_rule("Z -> ZM");}
     break;
 
   case 18:
 
 /* Line 1455 of yacc.c  */
-#line 209 "cutter.c"
+#line 210 "cutter.c"
     { print_next_and_rule("M -> HVB"); }
     break;
 
   case 19:
 
 /* Line 1455 of yacc.c  */
-#line 216 "cutter.c"
+#line 217 "cutter.c"
     { print_next_and_rule("H -> function "); printf("%s(U):result Y;", (yyvsp[(2) - (9)])->lexeme); }
     break;
 
   case 20:
 
 /* Line 1455 of yacc.c  */
-#line 221 "cutter.c"
+#line 222 "cutter.c"
     { print_next_and_rule("U -> A"); }
     break;
 
   case 21:
 
 /* Line 1455 of yacc.c  */
-#line 222 "cutter.c"
+#line 223 "cutter.c"
     { print_next_and_rule("U -> U;A"); }
     break;
 
   case 22:
 
 /* Line 1455 of yacc.c  */
-#line 228 "cutter.c"
+#line 229 "cutter.c"
     { print_next_and_rule("A -> "); printf("%s:Y", (yyvsp[(1) - (3)])->lexeme); 
       (yyval) = (yyvsp[(3) - (3)]);
     }
@@ -1709,7 +1710,7 @@ yyreduce:
   case 23:
 
 /* Line 1455 of yacc.c  */
-#line 231 "cutter.c"
+#line 232 "cutter.c"
     { print_next_and_rule("A -> "); printf("%s:Y", (yyvsp[(1) - (3)])->lexeme); 
       (yyval) = (yyvsp[(3) - (3)]);
   }
@@ -1718,107 +1719,96 @@ yyreduce:
   case 24:
 
 /* Line 1455 of yacc.c  */
-#line 237 "cutter.c"
+#line 238 "cutter.c"
     { print_next_and_rule("B -> begin K end"); }
     break;
 
   case 25:
 
 /* Line 1455 of yacc.c  */
-#line 242 "cutter.c"
+#line 243 "cutter.c"
     { print_next_and_rule("K -> S"); }
     break;
 
   case 26:
 
 /* Line 1455 of yacc.c  */
-#line 243 "cutter.c"
+#line 244 "cutter.c"
     { print_next_and_rule("K -> K;S"); }
     break;
 
   case 27:
 
 /* Line 1455 of yacc.c  */
-#line 248 "cutter.c"
+#line 249 "cutter.c"
     { print_next_and_rule("S -> "); printf("%s:=E", (yyvsp[(1) - (3)])->lexeme); 
       
-      if((yyvsp[(3) - (3)])->lex_value == TEMP)
-        T_count--;
-
       quad = add_quad(ASSIGN, (yyvsp[(3) - (3)]), NULL);
       quad->either.op3 = (yyvsp[(1) - (3)]);
       print_quad(quad);
-
     }
     break;
 
   case 28:
 
 /* Line 1455 of yacc.c  */
-#line 259 "cutter.c"
+#line 256 "cutter.c"
     { print_next_and_rule("S -> if R then S else S"); }
     break;
 
   case 29:
 
 /* Line 1455 of yacc.c  */
-#line 260 "cutter.c"
+#line 257 "cutter.c"
     { print_next_and_rule("S -> read(X)"); }
     break;
 
   case 30:
 
 /* Line 1455 of yacc.c  */
-#line 261 "cutter.c"
+#line 258 "cutter.c"
     { print_next_and_rule("S -> write(X)"); }
     break;
 
   case 31:
 
 /* Line 1455 of yacc.c  */
-#line 262 "cutter.c"
+#line 259 "cutter.c"
     { print_next_and_rule("S -> id(X)"); printf(" %s", (yyvsp[(1) - (4)])->lexeme);}
     break;
 
   case 32:
 
 /* Line 1455 of yacc.c  */
-#line 263 "cutter.c"
+#line 260 "cutter.c"
     { print_next_and_rule("S -> B"); }
     break;
 
   case 33:
 
 /* Line 1455 of yacc.c  */
-#line 268 "cutter.c"
+#line 265 "cutter.c"
     { print_next_and_rule("R -> E "); printf("%s E", (yyvsp[(2) - (3)])->lexeme); }
     break;
 
   case 34:
 
 /* Line 1455 of yacc.c  */
-#line 273 "cutter.c"
-    { print_next_and_rule("X -> E"); 
-      quad = add_quad((int)'(', (yyvsp[(1) - (1)]), NULL);
-      print_quad(quad);
-    
-    }
+#line 270 "cutter.c"
+    { print_next_and_rule("X -> E");   }
     break;
 
   case 35:
 
 /* Line 1455 of yacc.c  */
-#line 279 "cutter.c"
-    { print_next_and_rule("X -> X,E"); 
-      quad = add_quad((int)',', (yyvsp[(3) - (3)]), NULL);
-      print_quad(quad);
-  }
+#line 271 "cutter.c"
+    { print_next_and_rule("X -> X,E"); }
     break;
 
   case 36:
 
 /* Line 1455 of yacc.c  */
-#line 287 "cutter.c"
+#line 276 "cutter.c"
     { print_next_and_rule("E -> E+T"); 
      
       if((yyvsp[(1) - (3)])->lex_value == TEMP) {
@@ -1840,7 +1830,7 @@ yyreduce:
   case 37:
 
 /* Line 1455 of yacc.c  */
-#line 304 "cutter.c"
+#line 293 "cutter.c"
     { print_next_and_rule("E -> E-T"); 
 
       if((yyvsp[(1) - (3)])->lex_value == TEMP) {
@@ -1862,14 +1852,14 @@ yyreduce:
   case 38:
 
 /* Line 1455 of yacc.c  */
-#line 321 "cutter.c"
+#line 310 "cutter.c"
     { print_next_and_rule("E -> T"); }
     break;
 
   case 39:
 
 /* Line 1455 of yacc.c  */
-#line 326 "cutter.c"
+#line 315 "cutter.c"
     { print_next_and_rule("T -> T*F"); 
       
       if((yyvsp[(1) - (3)])->lex_value == TEMP) {
@@ -1891,7 +1881,7 @@ yyreduce:
   case 40:
 
 /* Line 1455 of yacc.c  */
-#line 343 "cutter.c"
+#line 332 "cutter.c"
     { print_next_and_rule("T -> T/F"); 
   
       if((yyvsp[(1) - (3)])->lex_value == TEMP) {
@@ -1913,59 +1903,56 @@ yyreduce:
   case 41:
 
 /* Line 1455 of yacc.c  */
-#line 360 "cutter.c"
+#line 349 "cutter.c"
     { print_next_and_rule("T -> F");   }
     break;
 
   case 42:
 
 /* Line 1455 of yacc.c  */
-#line 365 "cutter.c"
+#line 354 "cutter.c"
     { print_next_and_rule("F -> C"); }
     break;
 
   case 43:
 
 /* Line 1455 of yacc.c  */
-#line 366 "cutter.c"
+#line 355 "cutter.c"
     { print_next_and_rule("F -> "); printf("%s", (yyvsp[(1) - (1)])->lexeme);}
     break;
 
   case 44:
 
 /* Line 1455 of yacc.c  */
-#line 367 "cutter.c"
-    { print_next_and_rule("F -> "); printf("%s(X)", (yyvsp[(1) - (4)])->lexeme);
-      quad = add_quad((int) ')', (yyvsp[(1) - (4)]), NULL);
-      print_quad(quad);
-  }
+#line 356 "cutter.c"
+    { print_next_and_rule("F -> "); printf("%s(X)", (yyvsp[(1) - (4)])->lexeme); }
     break;
 
   case 45:
 
 /* Line 1455 of yacc.c  */
-#line 371 "cutter.c"
+#line 357 "cutter.c"
     { print_next_and_rule("F -> (E)"); (yyval) = (yyvsp[(2) - (3)]);}
     break;
 
   case 46:
 
 /* Line 1455 of yacc.c  */
-#line 376 "cutter.c"
+#line 362 "cutter.c"
     { print_next_and_rule("C -> "); printf("%s", (yyvsp[(1) - (1)])->lexeme);}
     break;
 
   case 47:
 
 /* Line 1455 of yacc.c  */
-#line 377 "cutter.c"
+#line 363 "cutter.c"
     { print_next_and_rule("C -> "); printf("%s", (yyvsp[(1) - (1)])->lexeme);}
     break;
 
 
 
 /* Line 1455 of yacc.c  */
-#line 1969 "y.tab.c"
+#line 1956 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2177,7 +2164,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 380 "cutter.c"
+#line 366 "cutter.c"
 
 
 int yylex()
